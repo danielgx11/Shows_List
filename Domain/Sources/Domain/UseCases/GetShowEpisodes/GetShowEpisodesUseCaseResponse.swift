@@ -12,4 +12,10 @@ public struct GetShowEpisodesUseCaseResponse: Codable {
     public let season: Int
     public let number: Int
     
+    public init(id: Int, name: String, season: Int, number: Int) {
+        self.id = id
+        self.name = name
+        self.season = season
+        self.number = number
+    }
 }

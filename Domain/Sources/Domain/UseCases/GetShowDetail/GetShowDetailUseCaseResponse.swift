@@ -16,4 +16,26 @@ public struct GetShowDetailUseCaseResponse: Codable {
     public let genres: [String]
     public let rating: RatingData?
     public let image: ImageData?
+    
+    public init(
+        id: Int,
+        name: String,
+        summary: String,
+        premiered: String,
+        ended: String,
+        language: String,
+        genres: [String],
+        rating: RatingData?,
+        image: ImageData?
+    ) {
+        self.id = id
+        self.name = name
+        self.summary = summary
+        self.premiered = premiered
+        self.ended = ended
+        self.language = language
+        self.genres = genres
+        self.rating = rating
+        self.image = image
+    }
 }
