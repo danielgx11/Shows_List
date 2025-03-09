@@ -14,7 +14,7 @@ final class ShowsListViewModel: ShowsListViewModelProtocol {
     // MARK: - METRICS
     
     private enum ViewModelMetrics {
-        static let searchableDelayMilliseconds = 2000
+        static let searchableDelayMilliseconds = 1000
     }
     
     // MARK: - PROPERTIES
