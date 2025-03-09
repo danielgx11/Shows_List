@@ -11,6 +11,7 @@ import SwiftUI
 
 fileprivate enum Constants {
     static let navigationTitle = "Shows List"
+    static let searchBarPrompt = "Look for something..."
 }
 
 struct ShowsListView<ViewModel>: View where ViewModel: ShowsListViewModelProtocol {
@@ -18,7 +19,7 @@ struct ShowsListView<ViewModel>: View where ViewModel: ShowsListViewModelProtoco
     // MARK: - PROPERTIES
     
     @EnvironmentObject private var coordinator: Coordinator
-    @ObservedObject var viewModel: ViewModel
+    @StateObject var viewModel: ViewModel
     
     // MARK: - UI
     
@@ -26,8 +27,13 @@ struct ShowsListView<ViewModel>: View where ViewModel: ShowsListViewModelProtoco
         ZStack {
             switch viewModel.viewState {
             case .hasData(let showsListViewEntity):
-                ShowsListContentView(viewEntity: showsListViewEntity)
-                    .navigationTitle(Constants.navigationTitle)
+                ShowsListContentView(viewModel: viewModel, viewEntity: showsListViewEntity) { identifier in
+                    coordinator.push(page: .showDetail(identifier: String(identifier)))
+                }
+                .navigationTitle(Constants.navigationTitle)
+                .searchable(text: $viewModel.searchText, prompt: Constants.searchBarPrompt)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
             case .hasError(let message):
                 errorView(message: message)
             case .loading:

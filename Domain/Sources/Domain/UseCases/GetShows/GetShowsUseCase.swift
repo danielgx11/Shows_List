@@ -17,7 +17,11 @@ public final class GetShowsUseCase {
 
 extension GetShowsUseCase: GetShowsUseCaseProtocol {
     
-    public func execute() async throws -> [GetShowsUseCaseResponse] {
-        try await service.fetchTVShows()
+    public func execute(page: String) async throws -> [GetShowsUseCaseResponse] {
+        try await service.fetchTVShows(page: page)
+    }
+    
+    public func execute(name: String) async throws -> GetShowsUseCaseResponse {
+        try await service.fetchTVShowsBy(name: name)
     }
 }

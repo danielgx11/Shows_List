@@ -17,8 +17,8 @@ struct ShowsListViewEntity {
         let language: String?
         let genres: [String]
         let rating: Double
-        let imageUrl: String?
-        let summary: String?
+        let imageUrl: URL?
+        let summary: AttributedString?
     }
 }
 
@@ -34,7 +34,7 @@ extension ShowsListViewEntity {
                 language: "English",
                 genres: ["Drama"],
                 rating: 99.32,
-                imageUrl: "",
+                imageUrl: URL(string: ""),
                 summary: "Marvel English Drama"
             )]
         )

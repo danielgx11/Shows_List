@@ -103,10 +103,33 @@ public final class ServiceManager {
 
 extension ServiceManager: ServiceManagerProtocol {
     
-    public func fetchTVShows() async throws -> [GetShowsUseCaseResponse] {
-        let request = ServiceRequest.getShows
+    public func fetchTVShows(page: String) async throws -> [GetShowsUseCaseResponse] {
+        let request = ServiceRequest.getShows(page: page)
         
         return try await fetch(request: request, type: [GetShowsUseCaseResponse].self)
     }
+    
+    public func fetchTVShowsBy(name: String) async throws -> GetShowsUseCaseResponse {
+        let request = ServiceRequest.getShowsByName(name)
+        
+        return try await fetch(request: request, type: GetShowsUseCaseResponse.self)
+    }
 
+    public func fetchTVShow(with identifier: String) async throws -> GetShowDetailUseCaseResponse {
+        let request = ServiceRequest.getShow(id: identifier)
+        
+        return try await fetch(request: request, type: GetShowDetailUseCaseResponse.self)
+    }
+    
+    public func fetchTVShowEpisodes(with identifier: String) async throws -> [GetShowEpisodesUseCaseResponse] {
+        let request = ServiceRequest.getEpisodesForShow(id: identifier)
+        
+        return try await fetch(request: request, type: [GetShowEpisodesUseCaseResponse].self)
+    }
+    
+    public func fetchEpisodeDetail(with identifier: String) async throws -> GetEpisodeDetailUseCaseResponse {
+        let request = ServiceRequest.getEpisodeDetail(id: identifier)
+        
+        return try await fetch(request: request, type: GetEpisodeDetailUseCaseResponse.self)
+    }
 }

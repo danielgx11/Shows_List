@@ -7,17 +7,34 @@
 
 import Foundation
 import Domain
+import Combine
 
 final class ShowsListViewModel: ShowsListViewModelProtocol {
+    
+    // MARK: - METRICS
+    
+    private enum ViewModelMetrics {
+        static let searchableDelayMilliseconds = 2000
+    }
     
     // MARK: - PROPERTIES
     
     @Published var viewState: ShowsListViewState = .loading
+    @Published var items: [ShowsListViewEntity.TVShowEntity] = []
+    @Published var itemsSearchedByName: [ShowsListViewEntity.TVShowEntity] = []
+    @Published var isFetching = false
+    @Published var isFetchingByName = false
+    @Published var isSearchingByName = false
+    @Published var searchText: String = ""
     
     var viewEntity: ShowsListViewEntity?
     
     private let useCase: GetShowsUseCaseProtocol?
     private let factory: ShowsListViewFactoryProtocol?
+    
+    private var currentPage = 0
+    
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - INITIALIZERS
     
@@ -29,8 +46,28 @@ final class ShowsListViewModel: ShowsListViewModelProtocol {
     // MARK: - PUBLIC API
     
     func initState() {
+        bindSearchable()
+        
         Task { [weak self] in
-            self?.fetchShows()
+           await self?.fetchShows()
+        }
+    }
+    
+    func fetchMoreItems() {
+        if !isFetching {
+            currentPage += 1
+            
+            Task { [weak self] in
+                await self?.fetchShows()
+            }
+        }
+    }
+    
+    func searchByName(_ showName: String) {
+        isFetchingByName = true
+        
+        Task { [weak self] in
+            await self?.fetchShowBy(name: showName)
         }
     }
 }
@@ -39,24 +76,76 @@ final class ShowsListViewModel: ShowsListViewModelProtocol {
 
 extension ShowsListViewModel {
     
-    private func fetchShows() {
-        Task {
-            do {
-                let response = try await useCase?.execute()
-                
-                guard let viewEntity = factory?.buildViewEntity(with: response ?? []) else {
+    private func bindSearchable() {
+        $searchText
+            .debounce(for: .milliseconds(ViewModelMetrics.searchableDelayMilliseconds), scheduler: RunLoop.main)
+            .removeDuplicates()
+            .sink { [weak self] query in
+                guard let self = self, !query.isEmpty else {
+                    DispatchQueue.main.async {
+                        self?.isSearchingByName = false
+                    }
                     return
                 }
                 
-                await MainActor.run {
-                    viewState = .hasData(viewEntity)
+                DispatchQueue.main.async {
+                    self.isSearchingByName = true
                 }
-            } catch {
-                await MainActor.run {
-                    viewState = .hasError(message: factory?.buildErrorMessage(with: error) ?? "")
-                }
-            }
                 
+                self.searchByName(query)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func fetchShows() async {
+        if currentPage > .zero {
+            await MainActor.run {
+                isFetching = true
+            }
+        }
+        
+        do {
+            let response = try await useCase?.execute(page: String(currentPage))
+            
+            guard let showsEntity = factory?.buildViewEntity(with: response ?? []) else {
+                return
+            }
+            
+            await MainActor.run {
+                isFetching = false
+                
+                if currentPage == .zero {
+                    viewEntity = showsEntity
+                    viewState = .hasData(showsEntity)
+                }
+                
+                items.append(contentsOf: showsEntity.shows)
+            }
+            
+        } catch {
+            await MainActor.run {
+                viewState = .hasError(message: factory?.buildErrorMessage(with: error) ?? "")
+                isFetching = false
+            }
+        }
+    }
+
+    private func fetchShowBy(name: String) async {
+        do {
+            guard let response = try await useCase?.execute(name: name),
+                  let showsEntity = factory?.buildViewEntity(with: [response]) else {
+                return
+            }
+            
+            await MainActor.run {
+                itemsSearchedByName = showsEntity.shows
+                isFetchingByName = false
+            }
+        } catch {
+            await MainActor.run {
+                isFetchingByName = false
+                isSearchingByName = false
+            }
         }
     }
     

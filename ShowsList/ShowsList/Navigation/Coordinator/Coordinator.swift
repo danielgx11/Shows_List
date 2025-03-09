@@ -44,15 +44,16 @@ class Coordinator: ObservableObject {
         switch page {
         case .showsList:
             AnyView(factory.makeShowsListView())
-        case .episode:
-            EmptyView()
+        case let .showDetail(identifier):
+            AnyView(factory.makeShowDetailView(with: identifier))
         }
     }
     
     @ViewBuilder
     func buildSheet(sheet: Sheet) -> some View {
         switch sheet {
-        case .episodeDetails: EmptyView()
+        case let .episodeDetails(identifier):
+            AnyView(factory.makeEpisodeDetailView(with: identifier))
         }
     }
     

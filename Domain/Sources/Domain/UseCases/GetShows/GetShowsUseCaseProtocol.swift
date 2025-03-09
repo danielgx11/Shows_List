@@ -8,5 +8,6 @@
 import Foundation
 
 public protocol GetShowsUseCaseProtocol {
-    func execute() async throws -> [GetShowsUseCaseResponse]
+    func execute(page: String) async throws -> [GetShowsUseCaseResponse]
+    func execute(name: String) async throws -> GetShowsUseCaseResponse
 }

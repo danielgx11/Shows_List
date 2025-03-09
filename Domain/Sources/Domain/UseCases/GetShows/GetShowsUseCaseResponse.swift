@@ -16,13 +16,13 @@ public struct GetShowsUseCaseResponse: Codable {
     public let image: ImageData?
     public let summary: String?
 
-    public struct ImageData: Codable {
-        public let medium: String?
-        public let original: String?
-    }
+}
 
-    public struct RatingData: Codable {
-        public let average: Double?
-    }
+public struct RatingData: Codable {
+    public let average: Double?
+}
 
+public struct ImageData: Codable {
+    public let medium: String?
+    public let original: String?
 }

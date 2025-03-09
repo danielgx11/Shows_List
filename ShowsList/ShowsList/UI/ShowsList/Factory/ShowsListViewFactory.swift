@@ -28,8 +28,8 @@ struct ShowsListViewFactory: ShowsListViewFactoryProtocol {
                     language: item.language,
                     genres: item.genres.map { $0 },
                     rating: item.rating?.average ?? .zero,
-                    imageUrl: item.image?.original,
-                    summary: item.summary
+                    imageUrl: URL(string: item.image?.medium ?? ""),
+                    summary: AttributedString(html: item.summary ?? "")
                 )
         }
     }

@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 protocol ShowsListFactoryProtocol {
-    
     func makeShowsListView() -> any View
+    func makeShowDetailView(with identifier: String) -> any View
+    func makeEpisodeDetailView(with identifier: String) -> any View
 }

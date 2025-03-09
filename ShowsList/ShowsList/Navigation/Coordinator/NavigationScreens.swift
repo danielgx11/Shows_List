@@ -9,13 +9,16 @@ import Foundation
 
 enum AppPages: Hashable {
     case showsList
-    case episode
+    case showDetail(identifier: String)
 }
 
-enum Sheet: String, Identifiable {
-    var id: String {
-        self.rawValue
-    }
+enum Sheet: Identifiable {
+    case episodeDetails(identifier: String)
     
-    case episodeDetails
+    var id: String {
+        switch self {
+        case .episodeDetails(let identifier):
+            return "episodeDetails_\(identifier)"
+        }
+    }
 }

@@ -44,27 +44,12 @@ struct TVShowViewCell: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.headline)
                 
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(content: {
-                        ForEach(viewEntity.genres, id: \.self) { genre in
-                            Text(genre)
-                                .padding(Metrics.tiny)
-                                .background(Color.mint)
-                                .clipShape(RoundedRectangle(cornerRadius: Metrics.small))
-                        }
-                    })
-                }
-                .containerRelativeFrame(
-                    .horizontal,
-                    count: ViewMetrics.scrollContainerFrameCount,
-                    span: ViewMetrics.scrollContainerFrameSpan,
-                    spacing: Metrics.tiny
-                )
+                Spacer()
+                
+                AsyncImageView(url: viewEntity.imageUrl, imageFrame: CGSize(width: Metrics.huge, height: Metrics.huge))
             }
             
             HStack {
-                Spacer()
-                                
                 Text(String(viewEntity.rating))
                     .font(.system(.body, design: .default, weight: .semibold))
 
@@ -74,10 +59,12 @@ struct TVShowViewCell: View {
                     .foregroundStyle(.yellow)
                     .frame(width: Metrics.small, height: Metrics.small)
                     .offset(y: ViewMetrics.starImageOffset)
+                
+                Spacer()
             }
             
             if let summary = viewEntity.summary {
-                Text(AttributedString(html: summary) ?? AttributedString())
+                Text(summary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .font(.callout)
                     .foregroundStyle(Color.black.opacity(ViewMetrics.summaryOpacity))
@@ -88,6 +75,13 @@ struct TVShowViewCell: View {
         .background(Color.gray.opacity(ViewMetrics.backgroundOpacity))
         .clipShape(.rect(cornerRadius: Metrics.tiny))
         .shadow(radius: Metrics.little)
+    }
+    
+    private func loadingView() -> some View {
+        ProgressView()
+            .frame(maxWidth: .infinity)
+            .frame(height: Metrics.big)
+            .padding(.vertical)
     }
 }
 

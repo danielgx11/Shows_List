@@ -21,4 +21,30 @@ struct ShowsListFactoryImplementation: ShowsListFactoryProtocol {
         
         return view
     }
+    
+    func makeShowDetailView(with identifier: String) -> any View {
+        let service = ServiceManager()
+        let getShowDetailUseCase = GetShowDetailUseCase(service: service)
+        let getEpisodesUseCase = GetShowEpisodesUseCase(service: service)
+        let factory = ShowDetailViewFactory()
+        let viewModel = ShowDetailViewModel(
+            getShowDetailUseCase: getShowDetailUseCase,
+            getEpisodesUseCase: getEpisodesUseCase,
+            factory: factory,
+            showIdentifier: identifier
+        )
+        let view = ShowDetailView(viewModel: viewModel)
+        
+        return view
+    }
+    
+    func makeEpisodeDetailView(with identifier: String) -> any View {
+        let service = ServiceManager()
+        let getEpisodeDetailUseCase = GetEpisodeDetailUseCase(service: service)
+        let factory = EpisodeDetailViewFactory()
+        let viewModel = EpisodeDetailViewModel(getEpisodeDetailUseCase: getEpisodeDetailUseCase, factory: factory, episodeIdentifier: identifier)
+        let view = EpisodeDetailView(viewModel: viewModel)
+        
+        return view
+    }
 }

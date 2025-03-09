@@ -8,30 +8,55 @@
 import SwiftUI
 import Commons
 
-struct ShowsListContentView: View {
+struct ShowsListContentView<ViewModel: ShowsListViewModelProtocol>: View {
     
     // MARK: - PROPERTIES
     
-    private let viewEntity: ShowsListViewEntity
+    @StateObject var viewModel: ViewModel
     
-    init(viewEntity: ShowsListViewEntity) {
-        self.viewEntity = viewEntity
-    }
+    let viewEntity: ShowsListViewEntity
     
+    let onTapCellGestureAction: ((Int) -> Void)?
+
     // MARK: - UI
     
     var body: some View {
         ScrollView {
-            LazyVStack(content: {
-                ForEach(viewEntity.shows, id: \.id) { show in
-                    TVShowViewCell(viewEntity: show)
-                }
-            })
-            .padding(Metrics.medium)
+            
+            if viewModel.isFetchingByName  {
+                loadingView()
+            } else {
+                LazyVStack(content: {
+                    ForEach(viewModel.isSearchingByName ? viewModel.itemsSearchedByName : viewModel.items, id: \.id) { show in
+                        TVShowViewCell(viewEntity: show)
+                            .onTapGesture {
+                                onTapCellGestureAction?(show.id)
+                            }
+                            .onAppear {
+                                if show.id == viewModel.items.last?.id {
+                                    viewModel.fetchMoreItems()
+                                }
+                            }
+                    }
+                    
+                    if viewModel.isFetching {
+                        loadingView()
+                    }
+                })
+                .padding(Metrics.medium)
+            }
         }
+    }
+    
+    private func loadingView() -> some View {
+        ProgressView()
+            .frame(maxWidth: .infinity)
+            .frame(height: Metrics.big)
+            .padding(.vertical)
     }
 }
 
 #Preview {
-    ShowsListContentView(viewEntity: .stub())
+    let viewModel = ShowsListViewModel(useCase: nil, factory: nil)
+    ShowsListContentView(viewModel: viewModel, viewEntity: .stub(), onTapCellGestureAction: nil)
 }
